@@ -3,6 +3,8 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass
 
+from dotenv import load_dotenv
+
 
 def _int_env(name: str, default: int) -> int:
     value = os.getenv(name)
@@ -13,6 +15,7 @@ def _int_env(name: str, default: int) -> int:
 
 @dataclass(frozen=True)
 class Settings:
+    app_backend: str = "aws"
     aws_region: str = "us-east-1"
     inventory_topic_arn: str = ""
     alert_topic_arn: str = ""
@@ -21,6 +24,18 @@ class Settings:
     inventory_table: str = "jhu-module7-inventory"
     alert_table: str = "jhu-module7-reorder-alerts"
     notification_table: str = "jhu-module7-notification-audit"
+    postgres_dsn: str = ""
+    kafka_bootstrap_servers: str = ""
+    kafka_security_protocol: str = "SASL_SSL"
+    kafka_sasl_mechanism: str = "SCRAM-SHA-256"
+    kafka_username: str = ""
+    kafka_password: str = ""
+    kafka_inventory_topic: str = "inventory-updates"
+    kafka_alert_topic: str = "reorder-alerts"
+    kafka_inventory_group: str = "inventory-worker"
+    kafka_alert_group: str = "alert-notifier"
+    kafka_topic_partitions: int = 3
+    kafka_topic_replication_factor: int = 1
     redis_url: str = ""
     cache_ttl_seconds: int = 60
     poll_wait_seconds: int = 20
@@ -30,7 +45,9 @@ class Settings:
 
     @classmethod
     def from_env(cls) -> "Settings":
+        load_dotenv()
         return cls(
+            app_backend=os.getenv("APP_BACKEND", "aws").lower(),
             aws_region=os.getenv("AWS_REGION", "us-east-1"),
             inventory_topic_arn=os.getenv("INVENTORY_TOPIC_ARN", ""),
             alert_topic_arn=os.getenv("ALERT_TOPIC_ARN", ""),
@@ -41,6 +58,18 @@ class Settings:
             notification_table=os.getenv(
                 "NOTIFICATION_TABLE", "jhu-module7-notification-audit"
             ),
+            postgres_dsn=os.getenv("POSTGRES_DSN", ""),
+            kafka_bootstrap_servers=os.getenv("KAFKA_BOOTSTRAP_SERVERS", ""),
+            kafka_security_protocol=os.getenv("KAFKA_SECURITY_PROTOCOL", "SASL_SSL"),
+            kafka_sasl_mechanism=os.getenv("KAFKA_SASL_MECHANISM", "SCRAM-SHA-256"),
+            kafka_username=os.getenv("KAFKA_USERNAME", ""),
+            kafka_password=os.getenv("KAFKA_PASSWORD", ""),
+            kafka_inventory_topic=os.getenv("KAFKA_INVENTORY_TOPIC", "inventory-updates"),
+            kafka_alert_topic=os.getenv("KAFKA_ALERT_TOPIC", "reorder-alerts"),
+            kafka_inventory_group=os.getenv("KAFKA_INVENTORY_GROUP", "inventory-worker"),
+            kafka_alert_group=os.getenv("KAFKA_ALERT_GROUP", "alert-notifier"),
+            kafka_topic_partitions=_int_env("KAFKA_TOPIC_PARTITIONS", 3),
+            kafka_topic_replication_factor=_int_env("KAFKA_TOPIC_REPLICATION_FACTOR", 1),
             redis_url=os.getenv("REDIS_URL", ""),
             cache_ttl_seconds=_int_env("CACHE_TTL_SECONDS", 60),
             poll_wait_seconds=_int_env("POLL_WAIT_SECONDS", 20),
@@ -54,3 +83,11 @@ class Settings:
         if missing:
             formatted = ", ".join(missing)
             raise RuntimeError(f"Missing required settings: {formatted}")
+
+    @property
+    def is_vultr(self) -> bool:
+        return self.app_backend == "vultr"
+
+    @property
+    def is_aws(self) -> bool:
+        return self.app_backend == "aws"

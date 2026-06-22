@@ -12,6 +12,11 @@ logger = logging.getLogger(__name__)
 
 
 def process_alert_event(event: dict[str, Any], context: AppContext) -> dict[str, Any]:
+    if event.get("event_type") not in (None, "reorder.alert.opened"):
+        raise ValueError(f"Unexpected alert event_type: {event.get('event_type')}")
+    if event.get("schema_version") not in (None, 1):
+        raise ValueError(f"Unsupported alert schema_version: {event.get('schema_version')}")
+
     alert = event.get("payload", event)
     notification = context.storage.record_notification(alert)
     context.storage.mark_alert_notified(alert["alert_id"])
@@ -26,6 +31,15 @@ def process_alert_event(event: dict[str, Any], context: AppContext) -> dict[str,
 
 def run_forever(context: AppContext) -> None:
     settings = context.settings
+    if settings.is_vultr:
+        settings.require("kafka_alert_topic", "kafka_alert_group")
+        context.kafka.consume_forever(
+            settings.kafka_alert_topic,
+            settings.kafka_alert_group,
+            lambda event: process_alert_event(event, context),
+        )
+        return
+
     settings.require("alert_queue_url")
     logger.info("alert notifier polling queue=%s", settings.alert_queue_url)
 

@@ -5,6 +5,7 @@ from inventory_reorder.worker import process_inventory_event
 
 
 class FakeSettings:
+    is_vultr = False
     alert_topic_arn = "arn:aws:sns:us-east-1:123456789012:test-alerts"
 
     def require(self, *names: str) -> None:
@@ -103,6 +104,29 @@ def test_inventory_worker_creates_alert_event_for_low_stock() -> None:
     assert "alerts:open" in context.cache.deleted
 
 
+def test_inventory_worker_rejects_wrong_event_type_before_side_effects() -> None:
+    context = fake_context()
+    event = {
+        "event_type": "reorder.alert.opened",
+        "payload": {
+            "sku": "GUMMY-001",
+            "name": "Sour Gummy Worms",
+            "quantity": 8,
+            "reorder_threshold": 10,
+        },
+    }
+
+    try:
+        process_inventory_event(event, context)
+    except ValueError as error:
+        assert "Unexpected inventory event_type" in str(error)
+    else:
+        raise AssertionError("wrong event type should fail")
+
+    assert context.storage.inventory == []
+    assert context.storage.alerts == []
+
+
 def test_alert_notifier_records_notification_audit() -> None:
     context = fake_context()
     event = {
@@ -120,3 +144,24 @@ def test_alert_notifier_records_notification_audit() -> None:
     assert notification["notification_id"] == "notification-123"
     assert context.storage.notifications[0]["alert_id"] == "alert-123"
     assert context.storage.notified_alerts == ["alert-123"]
+
+
+def test_alert_notifier_rejects_wrong_event_type_before_side_effects() -> None:
+    context = fake_context()
+    event = {
+        "event_type": "inventory.updated",
+        "payload": {
+            "alert_id": "alert-123",
+            "sku": "GUMMY-001",
+        },
+    }
+
+    try:
+        process_alert_event(event, context)
+    except ValueError as error:
+        assert "Unexpected alert event_type" in str(error)
+    else:
+        raise AssertionError("wrong event type should fail")
+
+    assert context.storage.notifications == []
+    assert context.storage.notified_alerts == []

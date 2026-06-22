@@ -11,7 +11,10 @@ requires-python = ">=3.11"
 dependencies = [
   "boto3>=1.34",
   "fastapi>=0.111",
+  "kafka-python-ng>=2.2",
+  "psycopg[binary]>=3.2",
   "pydantic>=2.7",
+  "python-dotenv>=1.0",
   "redis>=5.0",
   "uvicorn[standard]>=0.30"
 ]
@@ -26,6 +29,8 @@ dev = [
 inventory-api = "inventory_reorder.api:main"
 inventory-worker = "inventory_reorder.worker:main"
 alert-notifier = "inventory_reorder.notifier:main"
+vultr-init-db = "inventory_reorder.postgres_storage:main"
+vultr-init-kafka = "inventory_reorder.vultr_messaging:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

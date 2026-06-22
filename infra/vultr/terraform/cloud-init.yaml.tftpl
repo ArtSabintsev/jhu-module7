@@ -1,0 +1,74 @@
+#cloud-config
+package_update: true
+packages:
+  - git
+  - python3
+  - python3-venv
+  - python3-pip
+
+write_files:
+%{ if github_deploy_key_private != "" ~}
+  - path: /root/.ssh/jhu-module7_deploy_key
+    owner: root:root
+    permissions: "0600"
+    content: |
+      ${replace(trimspace(github_deploy_key_private), "\n", "\n      ")}
+%{ endif ~}
+  - path: /etc/jhu-module7.env
+    owner: root:root
+    permissions: "0600"
+    content: |
+      APP_BACKEND=vultr
+      KAFKA_BOOTSTRAP_SERVERS=${kafka_host}:${kafka_sasl_port}
+      KAFKA_SECURITY_PROTOCOL=SASL_SSL
+      KAFKA_SASL_MECHANISM=SCRAM-SHA-256
+      KAFKA_USERNAME=${kafka_user}
+      KAFKA_PASSWORD=${kafka_password}
+      KAFKA_INVENTORY_TOPIC=inventory-updates
+      KAFKA_ALERT_TOPIC=reorder-alerts
+      KAFKA_INVENTORY_GROUP=inventory-worker
+      KAFKA_ALERT_GROUP=alert-notifier
+      KAFKA_TOPIC_PARTITIONS=3
+      KAFKA_TOPIC_REPLICATION_FACTOR=${kafka_topic_replication}
+      POSTGRES_DSN="host=${postgres_host} port=${postgres_port} dbname=${postgres_dbname} user=${postgres_user} password=${postgres_password} sslmode=require"
+      REDIS_URL=rediss://:${valkey_password}@${valkey_host}:${valkey_port}/0
+      CACHE_TTL_SECONDS=60
+      API_HOST=0.0.0.0
+      API_PORT=8000
+      LOG_LEVEL=INFO
+  - path: /etc/systemd/system/${executable}.service
+    owner: root:root
+    permissions: "0644"
+    content: |
+      [Unit]
+      Description=JHU Module 7 ${executable}
+      After=network-online.target
+      Wants=network-online.target
+
+      [Service]
+      Type=simple
+      WorkingDirectory=/opt/jhu-module7
+      EnvironmentFile=/etc/jhu-module7.env
+      ExecStart=/opt/jhu-module7/.venv/bin/${executable}
+      Restart=always
+      RestartSec=5
+      User=linuxuser
+
+      [Install]
+      WantedBy=multi-user.target
+
+runcmd:
+  - mkdir -p /root/.ssh
+  - ssh-keyscan github.com >> /root/.ssh/known_hosts
+%{ if github_deploy_key_private != "" ~}
+  - GIT_SSH_COMMAND='ssh -i /root/.ssh/jhu-module7_deploy_key -o IdentitiesOnly=yes' git clone --branch ${app_git_ref} ${app_repo_url} /opt/jhu-module7
+%{ else ~}
+  - git clone --branch ${app_git_ref} ${app_repo_url} /opt/jhu-module7
+%{ endif ~}
+  - chown -R linuxuser:linuxuser /opt/jhu-module7
+  - cd /opt/jhu-module7 && sudo -u linuxuser python3 -m venv .venv
+  - cd /opt/jhu-module7 && sudo -u linuxuser .venv/bin/pip install -e .
+  - cd /opt/jhu-module7 && sudo -u linuxuser /opt/jhu-module7/.venv/bin/vultr-init-db
+  - cd /opt/jhu-module7 && sudo -u linuxuser /opt/jhu-module7/.venv/bin/vultr-init-kafka
+  - systemctl daemon-reload
+  - systemctl enable --now ${executable}

@@ -12,7 +12,9 @@ Small retail stores can lose sales when popular items run out before staff notic
 
 ## Architecture
 
-The deployed system uses:
+The deployed system can use either AWS or Vultr. The Vultr deployment is the preferred non-AWS path because Vultr offers managed Kafka, PostgreSQL, and Valkey.
+
+The AWS deployment uses:
 
 - `inventory-api` on EC2 to accept inventory updates and serve read endpoints.
 - Amazon SNS to publish inventory and alert events.
@@ -21,6 +23,15 @@ The deployed system uses:
 - DynamoDB to store inventory, alerts, and notification audit records.
 - ElastiCache Redis to cache inventory and alert reads.
 - `alert-notifier` on EC2 to consume alert events and record notification audits.
+
+The Vultr deployment uses:
+
+- `inventory-api` on Vultr Cloud Compute.
+- Vultr Managed Kafka for inventory update and reorder alert topics.
+- `inventory-worker` on Vultr Cloud Compute.
+- Vultr Managed PostgreSQL for inventory, alerts, and notification audit records.
+- Vultr Managed Valkey for Redis-compatible API caching.
+- `alert-notifier` on Vultr Cloud Compute.
 
 ## Component Interaction
 
@@ -39,10 +50,10 @@ The deployed system uses:
 
 | Required technology | Cloud service used | How it is used |
 | --- | --- | --- |
-| Messaging | Amazon SNS | Publishes inventory update and reorder alert events |
-| Queuing | Amazon SQS | Buffers events for worker and notifier processes |
-| Caching | Amazon ElastiCache Redis | Caches inventory and alert reads for the API |
-| Database | Amazon DynamoDB | Stores inventory, reorder alerts, and notification audit records |
+| Messaging | Amazon SNS or Vultr Managed Kafka | Publishes inventory update and reorder alert events |
+| Queuing | Amazon SQS or Kafka consumer groups/topic retention | Buffers events for worker and notifier processes |
+| Caching | Amazon ElastiCache Redis or Vultr Managed Valkey | Caches inventory and alert reads for the API |
+| Database | Amazon DynamoDB or Vultr Managed PostgreSQL | Stores inventory, reorder alerts, and notification audit records |
 
 The project uses all four listed technology categories even though the assignment requires only three.
 
@@ -60,7 +71,7 @@ The API can accept requests quickly because it publishes to SNS and returns `202
 
 ## Cloud Deployment Strategy
 
-The chosen deployment strategy is three EC2 instances plus managed AWS services. This is more operationally explicit than a serverless design, but it matches the assignment restrictions. The application logic runs on VMs, while AWS manages the stateful services. That means the project demonstrates cloud integration without hiding the three executables inside prohibited functions or containers.
+The chosen deployment strategy is three cloud VMs plus managed cloud services. On AWS, the VMs are EC2 instances and the managed services are SNS, SQS, DynamoDB, and ElastiCache. On Vultr, the VMs are Cloud Compute instances and the managed services are Kafka, PostgreSQL, and Valkey. This is more operationally explicit than a serverless design, but it matches the assignment restrictions. The application logic runs on VMs, while the cloud provider manages the stateful services. That means the project demonstrates cloud integration without hiding the three executables inside prohibited functions or containers.
 
 ## Testing and Demonstration
 
@@ -80,7 +91,7 @@ Local automated tests cover the reorder decision rule and message decoding behav
 | --- | --- |
 | End-to-end working project | Demo commands, service logs, DynamoDB records, screenshot checklist |
 | Distributed application | Three separate executables coordinated by SNS/SQS |
-| Cloud integration | Terraform creates EC2, SNS, SQS, DynamoDB, and ElastiCache |
+| Cloud integration | Terraform creates AWS or Vultr VM and managed-service infrastructure |
 | Technology components | Uses messaging, queuing, caching, and databases |
 | Report completeness | This report plus deployment guide and architecture diagram |
 | Source code quality | Python package, clear modules, tests, explicit environment config |

@@ -21,7 +21,12 @@ class InventoryCache:
         if not settings.redis_url:
             logger.warning("REDIS_URL is not set; cache is disabled.")
             return cls(None, settings.cache_ttl_seconds)
-        client = redis.Redis.from_url(settings.redis_url, decode_responses=True)
+        client = redis.Redis.from_url(
+            settings.redis_url,
+            decode_responses=True,
+            socket_connect_timeout=2,
+            socket_timeout=2,
+        )
         return cls(client, settings.cache_ttl_seconds)
 
     @property
@@ -31,7 +36,11 @@ class InventoryCache:
     def get_json(self, key: str) -> Any | None:
         if self.redis is None:
             return None
-        raw = self.redis.get(key)
+        try:
+            raw = self.redis.get(key)
+        except redis.RedisError:
+            logger.exception("cache read failed; falling back to source key=%s", key)
+            return None
         if raw is None:
             logger.info("cache miss: %s", key)
             return None
@@ -41,9 +50,15 @@ class InventoryCache:
     def set_json(self, key: str, value: Any) -> None:
         if self.redis is None:
             return
-        self.redis.setex(key, self.ttl_seconds, json.dumps(value, sort_keys=True))
+        try:
+            self.redis.setex(key, self.ttl_seconds, json.dumps(value, sort_keys=True))
+        except redis.RedisError:
+            logger.exception("cache write failed key=%s", key)
 
     def delete(self, *keys: str) -> None:
         if self.redis is None or not keys:
             return
-        self.redis.delete(*keys)
+        try:
+            self.redis.delete(*keys)
+        except redis.RedisError:
+            logger.exception("cache delete failed keys=%s", keys)

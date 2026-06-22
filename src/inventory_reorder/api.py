@@ -33,13 +33,22 @@ def create_app() -> FastAPI:
     @app.post("/inventory", status_code=202, response_model=AcceptedResponse)
     def submit_inventory(update: InventoryUpdate) -> AcceptedResponse:
         context = get_context()
-        context.settings.require("inventory_topic_arn")
-        message_id = publish_json(
-            context.aws.sns,
-            context.settings.inventory_topic_arn,
-            f"Inventory update {update.sku}",
-            inventory_event(update),
-        )
+        event = inventory_event(update)
+        if context.settings.is_vultr:
+            context.settings.require("kafka_inventory_topic")
+            message_id = context.kafka.publish(
+                context.settings.kafka_inventory_topic,
+                f"Inventory update {update.sku}",
+                event,
+            )
+        else:
+            context.settings.require("inventory_topic_arn")
+            message_id = publish_json(
+                context.aws.sns,
+                context.settings.inventory_topic_arn,
+                f"Inventory update {update.sku}",
+                event,
+            )
         logger.info("accepted inventory update sku=%s event_id=%s", update.sku, update.event_id)
         return AcceptedResponse(
             status="ACCEPTED",

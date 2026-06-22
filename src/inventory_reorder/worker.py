@@ -14,6 +14,11 @@ logger = logging.getLogger(__name__)
 
 
 def process_inventory_event(event: dict[str, Any], context: AppContext) -> str:
+    if event.get("event_type") not in (None, "inventory.updated"):
+        raise ValueError(f"Unexpected inventory event_type: {event.get('event_type')}")
+    if event.get("schema_version") not in (None, 1):
+        raise ValueError(f"Unsupported inventory schema_version: {event.get('schema_version')}")
+
     payload = event.get("payload", event)
     update = InventoryUpdate.model_validate(payload)
     decision = evaluate_reorder(update)
@@ -23,17 +28,26 @@ def process_inventory_event(event: dict[str, Any], context: AppContext) -> str:
     context.cache.delete("inventory:all")
 
     if decision.reorder_needed:
-        context.settings.require("alert_topic_arn")
         alert = context.storage.upsert_open_alert(update, decision.reason)
         context.cache.delete("alerts:open")
-        message_id = publish_json(
-            context.aws.sns,
-            context.settings.alert_topic_arn,
-            f"Reorder needed {update.sku}",
-            alert_event(alert),
-        )
+        event = alert_event(alert)
+        if context.settings.is_vultr:
+            context.settings.require("kafka_alert_topic")
+            message_id = context.kafka.publish(
+                context.settings.kafka_alert_topic,
+                f"Reorder needed {update.sku}",
+                event,
+            )
+        else:
+            context.settings.require("alert_topic_arn")
+            message_id = publish_json(
+                context.aws.sns,
+                context.settings.alert_topic_arn,
+                f"Reorder needed {update.sku}",
+                event,
+            )
         logger.info(
-            "created reorder alert sku=%s alert_id=%s sns_message_id=%s",
+            "created reorder alert sku=%s alert_id=%s message_id=%s",
             update.sku,
             alert["alert_id"],
             message_id,
@@ -49,6 +63,15 @@ def process_inventory_event(event: dict[str, Any], context: AppContext) -> str:
 
 def run_forever(context: AppContext) -> None:
     settings = context.settings
+    if settings.is_vultr:
+        settings.require("kafka_inventory_topic", "kafka_inventory_group")
+        context.kafka.consume_forever(
+            settings.kafka_inventory_topic,
+            settings.kafka_inventory_group,
+            lambda event: process_inventory_event(event, context),
+        )
+        return
+
     settings.require("inventory_queue_url")
     logger.info("inventory worker polling queue=%s", settings.inventory_queue_url)
 
