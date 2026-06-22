@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "jhu-module7"
+version = "0.1.0"
+description = "Distributed cloud inventory reorder workflow for JHU Module 7"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "boto3>=1.34",
+  "fastapi>=0.111",
+  "pydantic>=2.7",
+  "redis>=5.0",
+  "uvicorn[standard]>=0.30"
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.2",
+  "httpx>=0.27"
+]
+
+[project.scripts]
+inventory-api = "inventory_reorder.api:main"
+inventory-worker = "inventory_reorder.worker:main"
+alert-notifier = "inventory_reorder.notifier:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

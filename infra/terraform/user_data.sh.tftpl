@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+dnf update -y
+dnf install -y git python3.11 python3.11-pip
+
+cat >/etc/jhu-module7.env <<'ENV'
+AWS_REGION=${aws_region}
+INVENTORY_TOPIC_ARN=${inventory_topic_arn}
+ALERT_TOPIC_ARN=${alert_topic_arn}
+INVENTORY_QUEUE_URL=${inventory_queue_url}
+ALERT_QUEUE_URL=${alert_queue_url}
+INVENTORY_TABLE=${inventory_table}
+ALERT_TABLE=${alert_table}
+NOTIFICATION_TABLE=${notification_table}
+REDIS_URL=redis://${redis_endpoint}:6379/0
+CACHE_TTL_SECONDS=60
+API_HOST=0.0.0.0
+API_PORT=8000
+LOG_LEVEL=INFO
+ENV
+
+%{ if app_repo_url != "" ~}
+git clone --branch ${app_git_ref} ${app_repo_url} /opt/jhu-module7
+chown -R ec2-user:ec2-user /opt/jhu-module7
+cd /opt/jhu-module7
+sudo -u ec2-user python3.11 -m venv .venv
+sudo -u ec2-user .venv/bin/pip install -e .
+
+cat >/etc/systemd/system/${executable}.service <<SERVICE
+[Unit]
+Description=JHU Module 7 ${executable}
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/jhu-module7
+EnvironmentFile=/etc/jhu-module7.env
+ExecStart=/opt/jhu-module7/.venv/bin/${executable}
+Restart=always
+RestartSec=5
+User=ec2-user
+
+[Install]
+WantedBy=multi-user.target
+SERVICE
+
+systemctl daemon-reload
+systemctl enable --now ${executable}
+%{ else ~}
+mkdir -p /opt/jhu-module7
+cat >/opt/jhu-module7/README_NEXT_STEP.txt <<'NOTE'
+Terraform created this VM and wrote /etc/jhu-module7.env.
+
+Because app_repo_url was empty, clone or copy the private repository to /opt/jhu-module7,
+then install it:
+
+  cd /opt/jhu-module7
+  python3.11 -m venv .venv
+  .venv/bin/pip install -e .
+
+Then copy the matching systemd unit from deploy/systemd and run:
+
+  sudo systemctl daemon-reload
+  sudo systemctl enable --now SERVICE_NAME
+NOTE
+chown -R ec2-user:ec2-user /opt/jhu-module7
+%{ endif ~}

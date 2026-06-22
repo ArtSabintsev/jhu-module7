@@ -1,0 +1,16 @@
+[Unit]
+Description=JHU Module 7 alert notifier
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/jhu-module7
+EnvironmentFile=/etc/jhu-module7.env
+ExecStart=/opt/jhu-module7/.venv/bin/alert-notifier
+Restart=always
+RestartSec=5
+User=ec2-user
+
+[Install]
+WantedBy=multi-user.target
