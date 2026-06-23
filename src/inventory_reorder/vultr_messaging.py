@@ -29,6 +29,12 @@ def _base_kafka_config(settings: Settings) -> dict[str, Any]:
                 "sasl_plain_password": settings.kafka_password,
             }
         )
+    if settings.kafka_ssl_cafile:
+        config["ssl_cafile"] = settings.kafka_ssl_cafile
+    if settings.kafka_ssl_certfile:
+        config["ssl_certfile"] = settings.kafka_ssl_certfile
+    if settings.kafka_ssl_keyfile:
+        config["ssl_keyfile"] = settings.kafka_ssl_keyfile
     return config
 
 
@@ -71,9 +77,18 @@ class KafkaEventBus:
 
         try:
             for message in consumer:
-                event = json.loads(message.value().decode("utf-8"))
-                handler(event)
-                consumer.commit()
+                try:
+                    event = decode_consumer_record(message)
+                    handler(event)
+                except Exception:
+                    logger.exception(
+                        "failed to process kafka message topic=%s partition=%s offset=%s",
+                        message.topic,
+                        message.partition,
+                        message.offset,
+                    )
+                finally:
+                    consumer.commit()
         finally:
             consumer.close()
 
@@ -83,6 +98,15 @@ def _message_key(payload: JsonDict) -> str | None:
     if isinstance(inner, dict) and inner.get("sku"):
         return str(inner["sku"])
     return None
+
+
+def decode_consumer_record(message: Any) -> JsonDict:
+    raw_value = message.value
+    if callable(raw_value):
+        raw_value = raw_value()
+    if isinstance(raw_value, bytes):
+        raw_value = raw_value.decode("utf-8")
+    return json.loads(raw_value)
 
 
 def initialize_topics(settings: Settings) -> list[str]:

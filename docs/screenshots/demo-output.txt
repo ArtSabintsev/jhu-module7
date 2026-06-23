@@ -1,0 +1,6 @@
+$ API_BASE_URL=http://66.135.2.150:8000 scripts/demo_requests.sh
+{"status":"ACCEPTED","message_id":"339547a6-a5d1-4b86-9cde-625d0f9a7da6","event_id":"8bec8ea8-9d7b-4f7c-8a4d-57b8e0b81938"}
+{"cache":"HIT","item":{"event_id":"8bec8ea8-9d7b-4f7c-8a4d-57b8e0b81938","name":"Sour Gummy Worms","quantity":8,"reorder_threshold":10,"sku":"GUMMY-001","status":"REORDER_NEEDED","updated_at":"2026-06-23T20:10:06.088795+00:00","vendor":"Acme Candy Supply"}}
+{"cache":"MISS","items":[{"alert_id":"ae96130e-3757-48ac-b149-aca866ccc3ba","sku":"GUMMY-001","name":"Sour Gummy Worms","quantity":8,"reorder_threshold":10,"vendor":"Acme Candy Supply","status":"OPEN","reason":"Quantity 8 is at or below reorder threshold 10.","created_at":"2026-06-23T20:10:06.328510+00:00","updated_at":"2026-06-23T20:10:06.328510+00:00","notified_at":"2026-06-23T20:10:06.596853+00:00","resolved_at":null}]}
+{"status":"ACCEPTED","message_id":"ace18404-187e-4302-9280-652edc30c04f","event_id":"88c9965d-bc12-4256-bf27-fcd6f1516f74"}
+{"cache":"MISS","items":[]}

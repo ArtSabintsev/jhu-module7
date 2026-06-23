@@ -1,0 +1,2 @@
+$ curl --max-time 10 -sS http://66.135.2.150:8000/health
+{"status":"ok","service":"inventory-api"}

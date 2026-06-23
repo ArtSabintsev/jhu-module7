@@ -1,0 +1,14 @@
+{
+  "name": "inventory-updates",
+  "partitions": 3,
+  "replication": 2,
+  "retention_hours": 120,
+  "retention_bytes": -1
+}
+{
+  "name": "reorder-alerts",
+  "partitions": 3,
+  "replication": 2,
+  "retention_hours": 120,
+  "retention_bytes": -1
+}

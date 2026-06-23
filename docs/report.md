@@ -12,17 +12,10 @@ Small retail stores can lose sales when popular items run out before staff notic
 
 ## Architecture
 
-The deployed system can use either AWS or Vultr. The Vultr deployment is the preferred non-AWS path because Vultr offers managed Kafka, PostgreSQL, and Valkey.
-
-The AWS deployment uses:
-
-- `inventory-api` on EC2 to accept inventory updates and serve read endpoints.
-- Amazon SNS to publish inventory and alert events.
-- Amazon SQS to buffer work for background processes.
-- `inventory-worker` on EC2 to apply reorder logic and persist state.
-- DynamoDB to store inventory, alerts, and notification audit records.
-- ElastiCache Redis to cache inventory and alert reads.
-- `alert-notifier` on EC2 to consume alert events and record notification audits.
+The submitted deployment runs on Vultr. It uses cloud virtual machines for the
+three required executables and Vultr managed services for the stateful
+components, so the project avoids the prohibited categories: no functions, no
+containers, no Kubernetes, and no service mesh.
 
 The Vultr deployment uses:
 
@@ -33,27 +26,39 @@ The Vultr deployment uses:
 - Vultr Managed Valkey for Redis-compatible API caching.
 - `alert-notifier` on Vultr Cloud Compute.
 
+```text
+Client
+  -> inventory-api VM
+  -> Kafka topic: inventory-updates
+  -> inventory-worker VM
+  -> PostgreSQL inventory + reorder_alerts tables
+  -> Valkey cache updates
+  -> Kafka topic: reorder-alerts
+  -> alert-notifier VM
+  -> PostgreSQL notification_audit table
+```
+
 ## Component Interaction
 
 1. A client sends `POST /inventory` to `inventory-api`.
-2. `inventory-api` validates the payload and publishes an `inventory.updated` event to SNS.
-3. SNS delivers the event to an SQS queue.
-4. `inventory-worker` long-polls the queue and evaluates the reorder rule.
-5. The worker writes current inventory state to DynamoDB.
-6. If the product is low, the worker creates or updates an open reorder alert in DynamoDB.
-7. The worker publishes a `reorder.alert.opened` event to SNS.
-8. SNS delivers that alert event to a second SQS queue.
-9. `alert-notifier` consumes the alert event and records a notification audit item in DynamoDB.
-10. `inventory-api` serves `GET /inventory` and `GET /alerts` through Redis read-through caching backed by DynamoDB.
+2. `inventory-api` validates the payload and publishes an `inventory.updated` event to the `inventory-updates` Kafka topic.
+3. Kafka retains the event and coordinates delivery to the `inventory-worker` consumer group.
+4. `inventory-worker` consumes the event and evaluates the reorder rule.
+5. The worker writes current inventory state to Vultr Managed PostgreSQL.
+6. The worker updates Valkey-backed cache entries so API reads can avoid repeated database work.
+7. If the product is low, the worker creates or updates an open reorder alert in PostgreSQL.
+8. The worker publishes a `reorder.alert.opened` event to the `reorder-alerts` Kafka topic.
+9. `alert-notifier` consumes that event through its own Kafka consumer group and records a notification audit row in PostgreSQL.
+10. `inventory-api` serves `GET /inventory` and `GET /alerts` through Valkey read-through caching backed by PostgreSQL.
 
 ## Required Technology Mapping
 
 | Required technology | Cloud service used | How it is used |
 | --- | --- | --- |
-| Messaging | Amazon SNS or Vultr Managed Kafka | Publishes inventory update and reorder alert events |
-| Queuing | Amazon SQS or Kafka consumer groups/topic retention | Buffers events for worker and notifier processes |
-| Caching | Amazon ElastiCache Redis or Vultr Managed Valkey | Caches inventory and alert reads for the API |
-| Database | Amazon DynamoDB or Vultr Managed PostgreSQL | Stores inventory, reorder alerts, and notification audit records |
+| Messaging | Vultr Managed Kafka | Publishes inventory update and reorder alert events |
+| Queuing | Kafka topics, retention, partitions, and consumer groups | Buffers events for worker and notifier processes |
+| Caching | Vultr Managed Valkey | Caches inventory and alert reads for the API |
+| Database | Vultr Managed PostgreSQL | Stores inventory, reorder alerts, and notification audit records |
 
 The project uses all four listed technology categories even though the assignment requires only three.
 
@@ -61,39 +66,40 @@ The project uses all four listed technology categories even though the assignmen
 
 | Executable | Deployment target | Responsibility |
 | --- | --- | --- |
-| `inventory-api` | EC2 VM | HTTP entry point and read API |
-| `inventory-worker` | EC2 VM | Inventory event consumer and reorder evaluator |
-| `alert-notifier` | EC2 VM | Alert event consumer and notification audit recorder |
+| `inventory-api` | Vultr Cloud Compute VM | HTTP entry point and read API |
+| `inventory-worker` | Vultr Cloud Compute VM | Inventory event consumer and reorder evaluator |
+| `alert-notifier` | Vultr Cloud Compute VM | Alert event consumer and notification audit recorder |
 
 ## Scalability and Efficiency
 
-The API can accept requests quickly because it publishes to SNS and returns `202 Accepted` instead of doing all work synchronously. SQS decouples the API from the worker so a burst of inventory updates does not immediately overload the evaluation process. The worker can be scaled by running additional VM processes against the same queue. DynamoDB uses on-demand billing so table capacity adjusts without manual capacity planning for this class-sized workload. Redis reduces repeated DynamoDB reads for common dashboard calls such as open alerts.
+The API can accept requests quickly because it publishes to Kafka and returns `202 Accepted` instead of doing all work synchronously. Kafka decouples the API from the worker so a burst of inventory updates does not immediately overload the evaluation process. The worker and notifier can be scaled by running additional VM processes in the same Kafka consumer groups. PostgreSQL centralizes durable workflow state in a managed cloud database, while Valkey reduces repeated database reads for common dashboard calls such as inventory lookups and open alerts.
 
 ## Cloud Deployment Strategy
 
-The chosen deployment strategy is three cloud VMs plus managed cloud services. On AWS, the VMs are EC2 instances and the managed services are SNS, SQS, DynamoDB, and ElastiCache. On Vultr, the VMs are Cloud Compute instances and the managed services are Kafka, PostgreSQL, and Valkey. This is more operationally explicit than a serverless design, but it matches the assignment restrictions. The application logic runs on VMs, while the cloud provider manages the stateful services. That means the project demonstrates cloud integration without hiding the three executables inside prohibited functions or containers.
+The chosen deployment strategy is three Vultr Cloud Compute VMs plus Vultr managed services. This is more operationally explicit than a serverless design, but it matches the assignment restrictions. The application logic runs on VMs, while Vultr manages Kafka, PostgreSQL, and Valkey. That means the project demonstrates cloud integration without hiding the three executables inside prohibited functions or containers.
 
 ## Testing and Demonstration
 
-Local automated tests cover the reorder decision rule and message decoding behavior. The cloud demonstration should show:
+Local automated tests cover the reorder decision rule and message decoding behavior. The cloud demonstration evidence is in `docs/screenshots/` and shows:
 
 - A low-stock `POST /inventory` request returning `202 Accepted`.
-- The inventory worker consuming the queued event.
-- A DynamoDB inventory record.
-- A DynamoDB open alert record.
+- The inventory worker consuming the queued Kafka event.
+- A PostgreSQL inventory record.
+- A PostgreSQL open alert record.
 - The alert notifier recording a notification audit item.
 - `GET /alerts` returning the open alert.
-- A repeated `GET /alerts` returning a Redis cache hit.
+- A cached inventory read returning `cache: "HIT"` through Valkey.
+- A healthy inventory update resolving the open alert.
 
 ## Rubric Alignment
 
 | Rubric criterion | Evidence in this repository |
 | --- | --- |
-| End-to-end working project | Demo commands, service logs, DynamoDB records, screenshot checklist |
-| Distributed application | Three separate executables coordinated by SNS/SQS |
-| Cloud integration | Terraform creates AWS or Vultr VM and managed-service infrastructure |
-| Technology components | Uses messaging, queuing, caching, and databases |
-| Report completeness | This report plus deployment guide and architecture diagram |
+| End-to-end working project | `docs/screenshots/demo-output.txt`, `postgres-evidence.txt`, and the three systemd log files |
+| Distributed application | Three separate executables coordinated by Vultr Managed Kafka |
+| Cloud integration | `terraform-plan-live-clean.txt`, `terraform-state-list.txt`, and `vultr-resource-list.txt` |
+| Technology components | Kafka messaging, Kafka consumer-group queuing, Valkey caching, and PostgreSQL database records |
+| Report completeness | This report, `docs/deployment_vultr.md`, and `docs/screenshots/README.md` |
 | Source code quality | Python package, clear modules, tests, explicit environment config |
 | Real-world relevance | Retail inventory reorder workflow |
 

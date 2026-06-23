@@ -1,6 +1,7 @@
 #cloud-config
 package_update: true
 packages:
+  - openssh-server
   - git
   - python3
   - python3-venv
@@ -24,6 +25,7 @@ write_files:
       KAFKA_SASL_MECHANISM=SCRAM-SHA-256
       KAFKA_USERNAME=${kafka_user}
       KAFKA_PASSWORD=${kafka_password}
+      KAFKA_SSL_CAFILE=/etc/jhu-module7-kafka-ca.pem
       KAFKA_INVENTORY_TOPIC=inventory-updates
       KAFKA_ALERT_TOPIC=reorder-alerts
       KAFKA_INVENTORY_GROUP=inventory-worker
@@ -36,6 +38,11 @@ write_files:
       API_HOST=0.0.0.0
       API_PORT=8000
       LOG_LEVEL=INFO
+  - path: /etc/jhu-module7-kafka-ca.pem
+    owner: root:root
+    permissions: "0644"
+    content: |
+      ${replace(trimspace(kafka_ca_certificate), "\n", "\n      ")}
   - path: /etc/systemd/system/${executable}.service
     owner: root:root
     permissions: "0644"
@@ -58,13 +65,12 @@ write_files:
       WantedBy=multi-user.target
 
 runcmd:
+  - systemctl enable --now ssh
+  - ufw allow 8000/tcp
   - mkdir -p /root/.ssh
   - ssh-keyscan github.com >> /root/.ssh/known_hosts
 %{ if github_deploy_key_private != "" ~}
   - GIT_SSH_COMMAND='ssh -i /root/.ssh/jhu-module7_deploy_key -o IdentitiesOnly=yes' git clone --branch ${app_git_ref} ${app_repo_url} /opt/jhu-module7
-%{ else ~}
-  - git clone --branch ${app_git_ref} ${app_repo_url} /opt/jhu-module7
-%{ endif ~}
   - chown -R linuxuser:linuxuser /opt/jhu-module7
   - cd /opt/jhu-module7 && sudo -u linuxuser python3 -m venv .venv
   - cd /opt/jhu-module7 && sudo -u linuxuser .venv/bin/pip install -e .
@@ -72,3 +78,10 @@ runcmd:
   - cd /opt/jhu-module7 && sudo -u linuxuser /opt/jhu-module7/.venv/bin/vultr-init-kafka
   - systemctl daemon-reload
   - systemctl enable --now ${executable}
+%{ else ~}
+  - mkdir -p /opt/jhu-module7
+  - chown linuxuser:linuxuser /opt/jhu-module7
+  - printf 'Manual deployment required. Copy the repository to /opt/jhu-module7, install the venv, then enable the ${executable} service.\n' > /opt/jhu-module7/MANUAL_DEPLOYMENT_REQUIRED.txt
+  - chown linuxuser:linuxuser /opt/jhu-module7/MANUAL_DEPLOYMENT_REQUIRED.txt
+  - systemctl daemon-reload
+%{ endif ~}

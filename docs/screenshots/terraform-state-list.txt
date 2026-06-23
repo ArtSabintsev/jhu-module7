@@ -1,0 +1,11 @@
+vultr_database.kafka
+vultr_database.postgres
+vultr_database.valkey
+vultr_database_topic.inventory_updates
+vultr_database_topic.reorder_alerts
+vultr_firewall_group.app
+vultr_firewall_rule.api
+vultr_firewall_rule.ssh
+vultr_instance.service["api"]
+vultr_instance.service["notifier"]
+vultr_instance.service["worker"]

@@ -1,0 +1,69 @@
+● inventory-api.service - JHU Module 7 inventory-api
+     Loaded: loaded (/etc/systemd/system/inventory-api.service; enabled; preset: enabled)
+     Active: active (running) since Tue 2026-06-23 18:43:37 UTC; 10min ago
+   Main PID: 3929 (inventory-api)
+      Tasks: 8 (limit: 1048)
+     Memory: 58.5M (peak: 58.8M)
+        CPU: 2.095s
+     CGroup: /system.slice/inventory-api.service
+             └─3929 /opt/jhu-module7/.venv/bin/python3 /opt/jhu-module7/.venv/bin/inventory-api
+
+Jun 23 18:43:37 jhu-module7-api systemd[1]: Started inventory-api.service - JHU Module 7 inventory-api.
+Jun 23 18:43:38 jhu-module7-api inventory-api[3929]: INFO:     Started server process [3929]
+Jun 23 18:43:38 jhu-module7-api inventory-api[3929]: INFO:     Waiting for application startup.
+Jun 23 18:43:38 jhu-module7-api inventory-api[3929]: INFO:     Application startup complete.
+Jun 23 18:43:38 jhu-module7-api inventory-api[3929]: INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+Jun 23 18:52:56 jhu-module7-api inventory-api[3929]: INFO:     127.0.0.1:47234 - "GET /health HTTP/1.1" 200 OK
+Jun 23 18:53:21 jhu-module7-api inventory-api[3929]: INFO:     98.117.198.160:63034 - "GET /health HTTP/1.1" 200 OK
+Jun 23 18:53:21 jhu-module7-api inventory-api[3929]: 2026-06-23 18:53:21,272 INFO kafka.conn <BrokerConnection node_id=bootstrap-0 host=vultr-prod-2b692d0b-30c2-4342-9ad5-a57149a97be4-vultr-prod-7fce.vultrdb.com:16764 <connecting> [IPv4 ('64.176.193.177', 16764)]>: connecting to vultr-prod-2b692d0b-30c2-4342-9ad5-a57149a97be4-vultr-prod-7fce.vultrdb.com:16764 [('64.176.193.177', 16764) IPv4]
+Jun 23 18:53:21 jhu-module7-api inventory-api[3929]: 2026-06-23 18:53:21,272 INFO kafka.conn Probing node bootstrap-0 broker version
+Jun 23 18:53:21 jhu-module7-api inventory-api[3929]: 2026-06-23 18:53:21,277 INFO kafka.conn <BrokerConnection node_id=bootstrap-0 host=vultr-prod-2b692d0b-30c2-4342-9ad5-a57149a97be4-vultr-prod-7fce.vultrdb.com:16764 <connecting> [IPv4 ('64.176.193.177', 16764)]>: Loading SSL CA from /etc/jhu-module7-kafka-ca.pem
+Jun 23 18:53:21 jhu-module7-api inventory-api[3929]: 2026-06-23 18:53:21,299 INFO root <BrokerConnection node_id=bootstrap-0 host=vultr-prod-2b692d0b-30c2-4342-9ad5-a57149a97be4-vultr-prod-7fce.vultrdb.com:16764 <authenticating> [IPv4 ('64.176.193.177', 16764)]>: Authenticated as vultradmin via SCRAM-SHA-256
+Jun 23 18:53:21 jhu-module7-api inventory-api[3929]: 2026-06-23 18:53:21,299 INFO kafka.conn <BrokerConnection node_id=bootstrap-0 host=vultr-prod-2b692d0b-30c2-4342-9ad5-a57149a97be4-vultr-prod-7fce.vultrdb.com:16764 <authenticating> [IPv4 ('64.176.193.177', 16764)]>: Connection complete.
+Jun 23 18:53:21 jhu-module7-api inventory-api[3929]: 2026-06-23 18:53:21,404 INFO kafka.conn Broker version identified as 2.6.0
+Jun 23 18:53:21 jhu-module7-api inventory-api[3929]: 2026-06-23 18:53:21,404 INFO kafka.conn Set configuration api_version=(2, 6, 0) to skip auto check_version requests on startup
+Jun 23 18:53:21 jhu-module7-api inventory-api[3929]: 2026-06-23 18:53:21,410 INFO kafka.conn <BrokerConnection node_id=1 host=108.61.157.230:16764 <connecting> [IPv4 ('108.61.157.230', 16764)]>: connecting to 108.61.157.230:16764 [('108.61.157.230', 16764) IPv4]
+Jun 23 18:53:21 jhu-module7-api inventory-api[3929]: 2026-06-23 18:53:21,411 INFO kafka.conn <BrokerConnection node_id=1 host=108.61.157.230:16764 <connecting> [IPv4 ('108.61.157.230', 16764)]>: Loading SSL CA from /etc/jhu-module7-kafka-ca.pem
+Jun 23 18:53:21 jhu-module7-api inventory-api[3929]: 2026-06-23 18:53:21,425 INFO root <BrokerConnection node_id=1 host=108.61.157.230:16764 <authenticating> [IPv4 ('108.61.157.230', 16764)]>: Authenticated as vultradmin via SCRAM-SHA-256
+Jun 23 18:53:21 jhu-module7-api inventory-api[3929]: 2026-06-23 18:53:21,426 INFO kafka.conn <BrokerConnection node_id=1 host=108.61.157.230:16764 <authenticating> [IPv4 ('108.61.157.230', 16764)]>: Connection complete.
+Jun 23 18:53:21 jhu-module7-api inventory-api[3929]: 2026-06-23 18:53:21,426 INFO kafka.conn <BrokerConnection node_id=bootstrap-0 host=vultr-prod-2b692d0b-30c2-4342-9ad5-a57149a97be4-vultr-prod-7fce.vultrdb.com:16764 <connected> [IPv4 ('64.176.193.177', 16764)]>: Closing connection.
+Jun 23 18:53:21 jhu-module7-api inventory-api[3929]: 2026-06-23 18:53:21,544 INFO inventory_reorder.api accepted inventory update sku=GUMMY-001 event_id=0f624499-3b58-4fe0-bca4-67460c705659
+Jun 23 18:53:21 jhu-module7-api inventory-api[3929]: INFO:     98.117.198.160:63035 - "POST /inventory HTTP/1.1" 202 Accepted
+Jun 23 18:53:26 jhu-module7-api inventory-api[3929]: 2026-06-23 18:53:26,656 INFO inventory_reorder.cache cache hit: inventory:GUMMY-001
+Jun 23 18:53:26 jhu-module7-api inventory-api[3929]: INFO:     98.117.198.160:63037 - "GET /inventory/GUMMY-001 HTTP/1.1" 200 OK
+Jun 23 18:53:26 jhu-module7-api inventory-api[3929]: 2026-06-23 18:53:26,705 INFO inventory_reorder.cache cache miss: alerts:open
+Jun 23 18:53:26 jhu-module7-api inventory-api[3929]: INFO:     98.117.198.160:63038 - "GET /alerts HTTP/1.1" 200 OK
+Jun 23 18:53:26 jhu-module7-api inventory-api[3929]: 2026-06-23 18:53:26,797 INFO inventory_reorder.api accepted inventory update sku=GUMMY-001 event_id=f1e20154-63c8-417f-a270-ee9cc985112b
+Jun 23 18:53:26 jhu-module7-api inventory-api[3929]: INFO:     98.117.198.160:63039 - "POST /inventory HTTP/1.1" 202 Accepted
+Jun 23 18:53:31 jhu-module7-api inventory-api[3929]: 2026-06-23 18:53:31,862 INFO inventory_reorder.cache cache miss: alerts:open
+Jun 23 18:53:31 jhu-module7-api inventory-api[3929]: INFO:     98.117.198.160:63040 - "GET /alerts HTTP/1.1" 200 OK
+
+Jun 23 18:43:37 jhu-module7-api systemd[1]: Started inventory-api.service - JHU Module 7 inventory-api.
+Jun 23 18:43:38 jhu-module7-api inventory-api[3929]: INFO:     Started server process [3929]
+Jun 23 18:43:38 jhu-module7-api inventory-api[3929]: INFO:     Waiting for application startup.
+Jun 23 18:43:38 jhu-module7-api inventory-api[3929]: INFO:     Application startup complete.
+Jun 23 18:43:38 jhu-module7-api inventory-api[3929]: INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+Jun 23 18:52:56 jhu-module7-api inventory-api[3929]: INFO:     127.0.0.1:47234 - "GET /health HTTP/1.1" 200 OK
+Jun 23 18:53:21 jhu-module7-api inventory-api[3929]: INFO:     98.117.198.160:63034 - "GET /health HTTP/1.1" 200 OK
+Jun 23 18:53:21 jhu-module7-api inventory-api[3929]: 2026-06-23 18:53:21,272 INFO kafka.conn <BrokerConnection node_id=bootstrap-0 host=vultr-prod-2b692d0b-30c2-4342-9ad5-a57149a97be4-vultr-prod-7fce.vultrdb.com:16764 <connecting> [IPv4 ('64.176.193.177', 16764)]>: connecting to vultr-prod-2b692d0b-30c2-4342-9ad5-a57149a97be4-vultr-prod-7fce.vultrdb.com:16764 [('64.176.193.177', 16764) IPv4]
+Jun 23 18:53:21 jhu-module7-api inventory-api[3929]: 2026-06-23 18:53:21,272 INFO kafka.conn Probing node bootstrap-0 broker version
+Jun 23 18:53:21 jhu-module7-api inventory-api[3929]: 2026-06-23 18:53:21,277 INFO kafka.conn <BrokerConnection node_id=bootstrap-0 host=vultr-prod-2b692d0b-30c2-4342-9ad5-a57149a97be4-vultr-prod-7fce.vultrdb.com:16764 <connecting> [IPv4 ('64.176.193.177', 16764)]>: Loading SSL CA from /etc/jhu-module7-kafka-ca.pem
+Jun 23 18:53:21 jhu-module7-api inventory-api[3929]: 2026-06-23 18:53:21,299 INFO root <BrokerConnection node_id=bootstrap-0 host=vultr-prod-2b692d0b-30c2-4342-9ad5-a57149a97be4-vultr-prod-7fce.vultrdb.com:16764 <authenticating> [IPv4 ('64.176.193.177', 16764)]>: Authenticated as vultradmin via SCRAM-SHA-256
+Jun 23 18:53:21 jhu-module7-api inventory-api[3929]: 2026-06-23 18:53:21,299 INFO kafka.conn <BrokerConnection node_id=bootstrap-0 host=vultr-prod-2b692d0b-30c2-4342-9ad5-a57149a97be4-vultr-prod-7fce.vultrdb.com:16764 <authenticating> [IPv4 ('64.176.193.177', 16764)]>: Connection complete.
+Jun 23 18:53:21 jhu-module7-api inventory-api[3929]: 2026-06-23 18:53:21,404 INFO kafka.conn Broker version identified as 2.6.0
+Jun 23 18:53:21 jhu-module7-api inventory-api[3929]: 2026-06-23 18:53:21,404 INFO kafka.conn Set configuration api_version=(2, 6, 0) to skip auto check_version requests on startup
+Jun 23 18:53:21 jhu-module7-api inventory-api[3929]: 2026-06-23 18:53:21,410 INFO kafka.conn <BrokerConnection node_id=1 host=108.61.157.230:16764 <connecting> [IPv4 ('108.61.157.230', 16764)]>: connecting to 108.61.157.230:16764 [('108.61.157.230', 16764) IPv4]
+Jun 23 18:53:21 jhu-module7-api inventory-api[3929]: 2026-06-23 18:53:21,411 INFO kafka.conn <BrokerConnection node_id=1 host=108.61.157.230:16764 <connecting> [IPv4 ('108.61.157.230', 16764)]>: Loading SSL CA from /etc/jhu-module7-kafka-ca.pem
+Jun 23 18:53:21 jhu-module7-api inventory-api[3929]: 2026-06-23 18:53:21,425 INFO root <BrokerConnection node_id=1 host=108.61.157.230:16764 <authenticating> [IPv4 ('108.61.157.230', 16764)]>: Authenticated as vultradmin via SCRAM-SHA-256
+Jun 23 18:53:21 jhu-module7-api inventory-api[3929]: 2026-06-23 18:53:21,426 INFO kafka.conn <BrokerConnection node_id=1 host=108.61.157.230:16764 <authenticating> [IPv4 ('108.61.157.230', 16764)]>: Connection complete.
+Jun 23 18:53:21 jhu-module7-api inventory-api[3929]: 2026-06-23 18:53:21,426 INFO kafka.conn <BrokerConnection node_id=bootstrap-0 host=vultr-prod-2b692d0b-30c2-4342-9ad5-a57149a97be4-vultr-prod-7fce.vultrdb.com:16764 <connected> [IPv4 ('64.176.193.177', 16764)]>: Closing connection.
+Jun 23 18:53:21 jhu-module7-api inventory-api[3929]: 2026-06-23 18:53:21,544 INFO inventory_reorder.api accepted inventory update sku=GUMMY-001 event_id=0f624499-3b58-4fe0-bca4-67460c705659
+Jun 23 18:53:21 jhu-module7-api inventory-api[3929]: INFO:     98.117.198.160:63035 - "POST /inventory HTTP/1.1" 202 Accepted
+Jun 23 18:53:26 jhu-module7-api inventory-api[3929]: 2026-06-23 18:53:26,656 INFO inventory_reorder.cache cache hit: inventory:GUMMY-001
+Jun 23 18:53:26 jhu-module7-api inventory-api[3929]: INFO:     98.117.198.160:63037 - "GET /inventory/GUMMY-001 HTTP/1.1" 200 OK
+Jun 23 18:53:26 jhu-module7-api inventory-api[3929]: 2026-06-23 18:53:26,705 INFO inventory_reorder.cache cache miss: alerts:open
+Jun 23 18:53:26 jhu-module7-api inventory-api[3929]: INFO:     98.117.198.160:63038 - "GET /alerts HTTP/1.1" 200 OK
+Jun 23 18:53:26 jhu-module7-api inventory-api[3929]: 2026-06-23 18:53:26,797 INFO inventory_reorder.api accepted inventory update sku=GUMMY-001 event_id=f1e20154-63c8-417f-a270-ee9cc985112b
+Jun 23 18:53:26 jhu-module7-api inventory-api[3929]: INFO:     98.117.198.160:63039 - "POST /inventory HTTP/1.1" 202 Accepted
+Jun 23 18:53:31 jhu-module7-api inventory-api[3929]: 2026-06-23 18:53:31,862 INFO inventory_reorder.cache cache miss: alerts:open
+Jun 23 18:53:31 jhu-module7-api inventory-api[3929]: INFO:     98.117.198.160:63040 - "GET /alerts HTTP/1.1" 200 OK

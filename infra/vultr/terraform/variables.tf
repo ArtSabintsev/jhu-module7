@@ -53,7 +53,7 @@ variable "valkey_plan" {
 }
 
 variable "trusted_ips" {
-  description = "Trusted public IPs/CIDRs allowed to reach managed databases. For a quick class demo, 0.0.0.0/0 is easiest but less restrictive."
+  description = "Trusted public IP addresses allowed to reach managed databases."
   type        = list(string)
 }
 

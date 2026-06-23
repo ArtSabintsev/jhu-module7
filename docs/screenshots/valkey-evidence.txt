@@ -1,0 +1,3 @@
+valkey_ping True
+valkey_key_count 1
+key inventory:GUMMY-001

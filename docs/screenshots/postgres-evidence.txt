@@ -1,0 +1,8 @@
+inventory
+{'sku': 'GUMMY-001', 'name': 'Sour Gummy Worms', 'quantity': 40, 'reorder_threshold': 10, 'status': 'HEALTHY', 'event_id': '88c9965d-bc12-4256-bf27-fcd6f1516f74', 'updated_at': '2026-06-23T20:10:11.383742+00:00'}
+reorder_alerts
+{'sku': 'GUMMY-001', 'status': 'RESOLVED', 'quantity': 8, 'reorder_threshold': 10, 'reason': 'Quantity 8 is at or below reorder threshold 10.', 'notified': True, 'resolved': True}
+{'sku': 'GUMMY-001', 'status': 'RESOLVED', 'quantity': 8, 'reorder_threshold': 10, 'reason': 'Quantity 8 is at or below reorder threshold 10.', 'notified': True, 'resolved': True}
+notification_audit
+{'sku': 'GUMMY-001', 'channel': 'manager-dashboard', 'destination': 'store-manager', 'status': 'RECORDED', 'created_at': '2026-06-23T20:10:06.531083+00:00'}
+{'sku': 'GUMMY-001', 'channel': 'manager-dashboard', 'destination': 'store-manager', 'status': 'RECORDED', 'created_at': '2026-06-23T18:53:21.980337+00:00'}

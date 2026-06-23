@@ -15,7 +15,13 @@ infra/terraform/.terraform/
 infra/terraform/.terraform.lock.hcl
 infra/terraform/terraform.tfstate
 infra/terraform/terraform.tfstate.*
-infra/terraform/tfplan
+infra/terraform/tfplan*
+infra/vultr/terraform/.terraform/
+infra/vultr/terraform/.terraform.lock.hcl
+infra/vultr/terraform/terraform.tfvars
+infra/vultr/terraform/terraform.tfstate
+infra/vultr/terraform/terraform.tfstate.*
+infra/vultr/terraform/tfplan*
 
 # Local deployment artifacts
 dist/

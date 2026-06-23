@@ -1,0 +1,15 @@
+api_public_ip = "66.135.2.150"
+kafka_bootstrap_servers = "vultr-prod-2b692d0b-30c2-4342-9ad5-a57149a97be4-vultr-prod-7fce.vultrdb.com:16764"
+kafka_topics = [
+  "inventory-updates",
+  "reorder-alerts",
+]
+postgres_host = "vultr-prod-690a7ba4-d926-4619-9be0-bcf87be667b2-vultr-prod-7fce.vultrdb.com"
+postgres_port = "16751"
+service_public_ips = {
+  "api" = "66.135.2.150"
+  "notifier" = "108.61.23.88"
+  "worker" = "45.63.17.131"
+}
+valkey_host = "vultr-prod-2385d1a3-b8f2-4aa6-b91e-472f4f220a60-vultr-prod-7fce.vultrdb.com"
+valkey_port = "16752"

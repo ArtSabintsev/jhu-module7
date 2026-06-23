@@ -30,6 +30,9 @@ class Settings:
     kafka_sasl_mechanism: str = "SCRAM-SHA-256"
     kafka_username: str = ""
     kafka_password: str = ""
+    kafka_ssl_cafile: str = ""
+    kafka_ssl_certfile: str = ""
+    kafka_ssl_keyfile: str = ""
     kafka_inventory_topic: str = "inventory-updates"
     kafka_alert_topic: str = "reorder-alerts"
     kafka_inventory_group: str = "inventory-worker"
@@ -64,6 +67,9 @@ class Settings:
             kafka_sasl_mechanism=os.getenv("KAFKA_SASL_MECHANISM", "SCRAM-SHA-256"),
             kafka_username=os.getenv("KAFKA_USERNAME", ""),
             kafka_password=os.getenv("KAFKA_PASSWORD", ""),
+            kafka_ssl_cafile=os.getenv("KAFKA_SSL_CAFILE", ""),
+            kafka_ssl_certfile=os.getenv("KAFKA_SSL_CERTFILE", ""),
+            kafka_ssl_keyfile=os.getenv("KAFKA_SSL_KEYFILE", ""),
             kafka_inventory_topic=os.getenv("KAFKA_INVENTORY_TOPIC", "inventory-updates"),
             kafka_alert_topic=os.getenv("KAFKA_ALERT_TOPIC", "reorder-alerts"),
             kafka_inventory_group=os.getenv("KAFKA_INVENTORY_GROUP", "inventory-worker"),

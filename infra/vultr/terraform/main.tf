@@ -65,7 +65,7 @@ resource "vultr_database" "postgres" {
 
 resource "vultr_database" "kafka" {
   database_engine         = "kafka"
-  database_engine_version = "3.7"
+  database_engine_version = "3.8"
   region                  = var.vultr_region
   plan                    = var.kafka_plan
   label                   = "${var.project_name}-kafka"
@@ -74,7 +74,7 @@ resource "vultr_database" "kafka" {
 
 resource "vultr_database" "valkey" {
   database_engine         = "valkey"
-  database_engine_version = "7"
+  database_engine_version = "8.1"
   region                  = var.vultr_region
   plan                    = var.valkey_plan
   label                   = "${var.project_name}-valkey"
@@ -113,23 +113,24 @@ resource "vultr_instance" "service" {
   tags              = local.tags
 
   user_data = templatefile("${path.module}/cloud-init.yaml.tftpl", {
-    app_git_ref            = var.app_git_ref
-    app_repo_url           = var.app_repo_url
-    executable             = each.value.executable
+    app_git_ref               = var.app_git_ref
+    app_repo_url              = var.app_repo_url
+    executable                = each.value.executable
     github_deploy_key_private = var.github_deploy_key_private
-    kafka_host             = vultr_database.kafka.host
-    kafka_sasl_port        = vultr_database.kafka.sasl_port
-    kafka_user             = vultr_database.kafka.user
-    kafka_password         = vultr_database.kafka.password
-    postgres_host          = vultr_database.postgres.host
-    postgres_port          = vultr_database.postgres.port
-    postgres_user          = vultr_database.postgres.user
-    postgres_password      = vultr_database.postgres.password
-    postgres_dbname        = vultr_database.postgres.dbname
-    valkey_host            = vultr_database.valkey.host
-    valkey_port            = vultr_database.valkey.port
-    valkey_password        = vultr_database.valkey.password
-    kafka_topic_replication = var.kafka_topic_replication
+    kafka_host                = vultr_database.kafka.host
+    kafka_sasl_port           = vultr_database.kafka.sasl_port
+    kafka_ca_certificate      = vultr_database.kafka.ca_certificate
+    kafka_user                = vultr_database.kafka.user
+    kafka_password            = vultr_database.kafka.password
+    postgres_host             = vultr_database.postgres.host
+    postgres_port             = vultr_database.postgres.port
+    postgres_user             = vultr_database.postgres.user
+    postgres_password         = vultr_database.postgres.password
+    postgres_dbname           = vultr_database.postgres.dbname
+    valkey_host               = vultr_database.valkey.host
+    valkey_port               = vultr_database.valkey.port
+    valkey_password           = vultr_database.valkey.password
+    kafka_topic_replication   = var.kafka_topic_replication
   })
 
   depends_on = [
@@ -139,4 +140,8 @@ resource "vultr_instance" "service" {
     vultr_database_topic.inventory_updates,
     vultr_database_topic.reorder_alerts
   ]
+
+  lifecycle {
+    ignore_changes = [user_data]
+  }
 }
