@@ -1,116 +1,66 @@
-# Vultr Deployment Guide
+# Live Vultr Deployment
 
-## Why Vultr Fits the Assignment
+This is the deployment submitted for Module 7.
 
-Vultr is acceptable for this project if the application uses Vultr managed services instead of self-installed databases, caches, or message brokers. This deployment uses:
+## Topology
 
-| Requirement | Vultr service |
+| Role | Vultr resource | Purpose |
+| --- | --- | --- |
+| API process | `jhu-module7-api` VM | Accepts inventory updates and serves API reads |
+| Worker process | `jhu-module7-worker` VM | Consumes inventory events and applies reorder logic |
+| Notifier process | `jhu-module7-notifier` VM | Consumes alert events and records notification audits |
+| Messaging | `jhu-module7-kafka` | Publishes inventory and alert events |
+| Queuing | Kafka topics and consumer groups | Buffers work for the worker and notifier |
+| Cache | `jhu-module7-valkey` | Stores API read-through cache entries |
+| Database | `jhu-module7-postgres` | Stores inventory, reorder alerts, and notification audit rows |
+
+## Live Endpoints
+
+| Service | Endpoint |
 | --- | --- |
-| Three executables | Three Vultr Cloud Compute VMs |
-| Messaging | Vultr Managed Apache Kafka |
-| Queuing | Kafka topics, retention, partitions, and consumer groups |
-| Caching | Vultr Managed Valkey, Redis-compatible |
-| Database | Vultr Managed PostgreSQL |
+| API | `http://66.135.2.150:8000` |
+| Health check | `http://66.135.2.150:8000/health` |
 
-This still avoids functions, containers, Kubernetes, and service mesh.
+## Kafka Topics
 
-## Architecture
+| Topic | Used by | Evidence |
+| --- | --- | --- |
+| `inventory-updates` | API publishes, worker consumes | `docs/screenshots/03-vultr-kafka-topics.png` |
+| `reorder-alerts` | Worker publishes, notifier consumes | `docs/screenshots/03-vultr-kafka-topics.png` |
 
-```text
-Client
-  -> inventory-api on Vultr Cloud Compute
-  -> Vultr Managed Kafka topic: inventory-updates
-  -> inventory-worker on Vultr Cloud Compute
-  -> Vultr Managed PostgreSQL
-  -> Vultr Managed Valkey
-  -> Vultr Managed Kafka topic: reorder-alerts
-  -> alert-notifier on Vultr Cloud Compute
-  -> PostgreSQL notification_audit table
-```
+## Workflow
 
-## Deployment Steps
+1. `inventory-api` receives a low-stock `POST /inventory` request.
+2. The API publishes an `inventory.updated` event to Kafka.
+3. `inventory-worker` consumes that event from the `inventory-worker` consumer group.
+4. The worker writes the inventory row to PostgreSQL.
+5. The worker opens a reorder alert in PostgreSQL when quantity is below threshold.
+6. The worker publishes a `reorder.alert.opened` event to Kafka.
+7. `alert-notifier` consumes the alert event from the `alert-notifier` consumer group.
+8. The notifier writes a notification audit row to PostgreSQL.
+9. The API serves repeated inventory reads from Valkey-backed cache.
+10. A healthy inventory update resolves the open alert.
 
-1. Export your Vultr API key:
+## Evidence Map
 
-```bash
-export VULTR_API_KEY="..."
-```
+| Claim | Evidence file |
+| --- | --- |
+| Three cloud VMs are running | `01-vultr-three-instances.png` |
+| Managed Postgres, Kafka, and Valkey are running | `02-vultr-managed-databases.png` |
+| Kafka topics exist | `03-vultr-kafka-topics.png`, `kafka-topics.txt` |
+| API is public and healthy | `health-output.txt` |
+| End-to-end workflow works | `demo-output.txt` |
+| PostgreSQL stores the records | `postgres-evidence.txt` |
+| Valkey cache works | `valkey-evidence.txt`, `demo-output.txt` |
+| Three services are active | `03-systemctl-api.txt`, `04-systemctl-worker.txt`, `05-systemctl-notifier.txt` |
+| Terraform matches the live stack | `terraform-plan-live-clean.txt`, `terraform-state-list.txt` |
 
-2. Create a deploy key for the private GitHub repo or plan to copy the repo manually. Full cloud-init bootstrap requires `github_deploy_key_private` in Terraform.
+## Teardown
 
-3. Find Vultr region, OS, SSH key, and managed database plan IDs:
-
-```bash
-vultr-cli regions list
-vultr-cli os list
-vultr-cli ssh-key list
-vultr-cli database plan list
-```
-
-4. Create `infra/vultr/terraform/terraform.tfvars`:
-
-```hcl
-vultr_region = "ewr"
-ssh_cidr     = "YOUR_PUBLIC_IP/32"
-api_cidr     = "YOUR_PUBLIC_IP/32"
-ssh_key_ids  = ["YOUR_VULTR_SSH_KEY_ID"]
-
-# For a simple class demo, this can be ["0.0.0.0/0"].
-# A tighter deployment should restrict this to known client/VM IPs.
-trusted_ips = ["0.0.0.0/0"]
-
-postgres_plan = "replace-with-postgres-plan-id"
-kafka_plan    = "replace-with-kafka-plan-id"
-valkey_plan   = "replace-with-valkey-plan-id"
-
-app_repo_url = "git@github.com:ArtSabintsev/jhu-module7.git"
-app_git_ref  = "main"
-
-github_deploy_key_private = <<EOT
------BEGIN OPENSSH PRIVATE KEY-----
-replace-with-read-only-github-deploy-key
------END OPENSSH PRIVATE KEY-----
-EOT
-```
-
-5. Apply Terraform:
+The live resources are billable. After grading evidence is captured, destroy the stack from the Terraform directory:
 
 ```bash
 cd infra/vultr/terraform
-terraform init
-terraform plan -out tfplan
-terraform apply tfplan
-terraform output
+source ~/.zshrc >/dev/null 2>&1
+terraform destroy
 ```
-
-6. Confirm the services are running:
-
-```bash
-ssh linuxuser@$(terraform output -raw api_public_ip) 'systemctl status inventory-api --no-pager'
-```
-
-Use the worker and notifier IPs from `terraform output service_public_ips` for the other two services.
-
-## End-to-End Test
-
-```bash
-API_BASE_URL="http://$(terraform output -raw api_public_ip):8000" ../../../scripts/demo_requests.sh
-```
-
-The first read should show `cache: "MISS"` and a repeated read should show `cache: "HIT"` if Valkey is reachable.
-
-## Manual Fallback
-
-If you do not want to put a deploy key into Terraform state, leave `github_deploy_key_private` empty, let Terraform create the infrastructure, then copy the repo to `/opt/jhu-module7` on each VM and run:
-
-```bash
-cd /opt/jhu-module7
-python3 -m venv .venv
-.venv/bin/pip install -e .
-.venv/bin/vultr-init-db
-.venv/bin/vultr-init-kafka
-sudo systemctl daemon-reload
-sudo systemctl enable --now SERVICE_NAME
-```
-
-Use only the correct service per VM: `inventory-api` on the API VM, `inventory-worker` on the worker VM, and `alert-notifier` on the notifier VM.

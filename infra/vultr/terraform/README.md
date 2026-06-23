@@ -1,82 +1,57 @@
-# Vultr Terraform Deployment
+# Vultr Terraform Stack
 
-This deployment uses only resources allowed by the assignment:
+This Terraform stack defines the live Module 7 deployment on Vultr.
 
-- Three Vultr Cloud Compute VMs for the three executables.
-- Vultr Managed Apache Kafka for messaging and queue-like event buffering.
-- Vultr Managed PostgreSQL for durable application state.
-- Vultr Managed Valkey for Redis-compatible caching.
+## Managed Resources
 
-It does not create functions, containers, Kubernetes, or a service mesh.
+| Terraform resource | Live purpose |
+| --- | --- |
+| `vultr_instance.service["api"]` | Runs `inventory-api` |
+| `vultr_instance.service["worker"]` | Runs `inventory-worker` |
+| `vultr_instance.service["notifier"]` | Runs `alert-notifier` |
+| `vultr_database.postgres` | Managed PostgreSQL database |
+| `vultr_database.kafka` | Managed Apache Kafka cluster |
+| `vultr_database.valkey` | Managed Valkey cache |
+| `vultr_database_topic.inventory_updates` | Kafka `inventory-updates` topic |
+| `vultr_database_topic.reorder_alerts` | Kafka `reorder-alerts` topic |
+| `vultr_firewall_group.app` | Application firewall |
+| `vultr_firewall_rule.ssh` | SSH access from the trusted IP |
+| `vultr_firewall_rule.api` | API access from the trusted IP |
 
-## Prerequisites
+## Runtime Values
 
-1. Export a Vultr API key:
+| Output | Value |
+| --- | --- |
+| `api_public_ip` | `66.135.2.150` |
+| `service_public_ips.api` | `66.135.2.150` |
+| `service_public_ips.worker` | `45.63.17.131` |
+| `service_public_ips.notifier` | `108.61.23.88` |
+| `kafka_topics` | `inventory-updates`, `reorder-alerts` |
 
-```bash
-export VULTR_API_KEY="..."
-```
+The live output is captured in `docs/screenshots/terraform-output.txt`.
 
-2. Create or identify Vultr SSH key IDs:
+## Validation
 
-```bash
-vultr-cli ssh-key list
-```
-
-3. List managed database plans for PostgreSQL, Kafka, and Valkey:
-
-```bash
-vultr-cli database plan list
-```
-
-The exact plan IDs vary by region and change over time, so the Terraform variables require explicit plan IDs.
-
-## terraform.tfvars
-
-```hcl
-vultr_region = "ewr"
-ssh_cidr     = "YOUR_PUBLIC_IP/32"
-api_cidr     = "YOUR_PUBLIC_IP/32"
-ssh_key_ids  = ["YOUR_VULTR_SSH_KEY_ID"]
-trusted_ips  = ["YOUR_PUBLIC_IP/32"]
-
-postgres_plan = "replace-with-postgres-plan-id"
-kafka_plan    = "replace-with-kafka-plan-id"
-valkey_plan   = "replace-with-valkey-plan-id"
-
-app_repo_url = "git@github.com:ArtSabintsev/jhu-module7.git"
-app_git_ref  = "main"
-
-github_deploy_key_private = <<EOT
------BEGIN OPENSSH PRIVATE KEY-----
-replace-with-read-only-github-deploy-key
------END OPENSSH PRIVATE KEY-----
-EOT
-```
-
-For a private GitHub repo, the VM must be able to clone over SSH. The simplest automated approach is to add a read-only deploy key for this repository before applying Terraform and pass that private key as `github_deploy_key_private`. This stores the key in Terraform state, so use it only for class/demo infrastructure. If you do not want that, copy the repo manually after the VMs exist.
-
-For `trusted_ips`, a tightly locked deployment needs the app VM IPs, which are not known until after creation. For a short class demo, `["0.0.0.0/0"]` is the simplest working value because PostgreSQL, Kafka, and Valkey still require credentials and TLS-capable clients.
-
-## Deploy
+The submitted stack was validated with:
 
 ```bash
-terraform init
-terraform plan -out tfplan
-terraform apply tfplan
-terraform output
+terraform fmt -check
+terraform validate
+terraform plan -no-color
 ```
 
-## Verify
+The final plan reported:
 
-```bash
-curl -sS http://$(terraform output -raw api_public_ip):8000/health
+```text
+No changes. Your infrastructure matches the configuration.
 ```
 
-Then run the API demo from the root README.
+## Teardown
 
-## Destroy
+Destroy the live Vultr resources after submission review:
 
 ```bash
+cd infra/vultr/terraform
+source ~/.zshrc >/dev/null 2>&1
 terraform destroy
 ```
