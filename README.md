@@ -97,8 +97,4 @@ The submitted evidence includes `pytest-output.txt` with `11 passed`.
 
 ## Submission
 
-Submit this GitHub repository link:
-
-```text
-https://github.com/ArtSabintsev/jhu-module7
-```
+Submit the repository link through the assignment portal after granting the instructor access.
