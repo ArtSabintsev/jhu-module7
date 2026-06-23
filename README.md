@@ -97,4 +97,4 @@ The submitted evidence includes `pytest-output.txt` with `11 passed`.
 
 ## Submission
 
-Submit the repository link through the assignment portal after granting the instructor access.
+Submit the public repository link through the assignment portal.
