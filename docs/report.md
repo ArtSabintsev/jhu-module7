@@ -2,7 +2,7 @@
 
 ## Summary
 
-This project is a live distributed cloud application for a candy-store inventory reorder workflow.
+This project is a distributed cloud application for a candy-store inventory reorder workflow.
 
 The store has a simple problem: low-stock products get missed until a customer wants something that is no longer on the shelf. This system turns each inventory update into a decision the store can act on. If the product is below its reorder threshold, the system opens a reorder alert and records a manager notification audit. If stock recovers, the system resolves the alert.
 
@@ -32,14 +32,14 @@ Client
 
 ## Technology Components
 
-| Required category | Live cloud service | How it is used |
+| Required category | Submitted cloud service | How it is used |
 | --- | --- | --- |
 | Messaging | Vultr Managed Kafka | Carries inventory update and reorder alert events |
 | Queuing | Kafka topics and consumer groups | Buffers work and assigns events to worker processes |
 | Caching | Vultr Managed Valkey | Caches inventory reads for the API |
 | Database | Vultr Managed PostgreSQL | Stores inventory rows, reorder alerts, and notification audit rows |
 
-The assignment requires at least three of these categories. The live deployment uses all four.
+The assignment requires at least three of these categories. The submitted deployment used all four.
 
 ## Component Interaction
 
@@ -69,7 +69,7 @@ The evidence package is in `docs/screenshots/`.
 | --- | --- |
 | End-to-end working project | `demo-output.txt`, `postgres-evidence.txt`, service logs |
 | Distributed application | `01-vultr-three-instances.png`, systemd logs |
-| Cloud integration | `02-vultr-managed-databases.png`, `terraform-plan-live-clean.txt` |
+| Cloud integration | `02-vultr-managed-databases.png`, `terraform-plan-clean.txt` |
 | Technology components | `03-vultr-kafka-topics.png`, `valkey-evidence.txt`, `postgres-evidence.txt` |
 | Report completeness | This report and `docs/deployment_vultr.md` |
 | Source code quality | Python package, tests, clear modules, environment-driven config |
@@ -77,7 +77,7 @@ The evidence package is in `docs/screenshots/`.
 
 ## Demonstrated Result
 
-The live demo used `GUMMY-001`.
+The submitted demo used `GUMMY-001`.
 
 First, the API accepted a quantity of `8` with a reorder threshold of `10`. The worker marked the product as `REORDER_NEEDED`, opened an alert, and the notifier recorded the manager audit row.
 

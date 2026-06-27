@@ -1,12 +1,12 @@
 Instances:
-55453a13-c30b-42c8-af89-d99122333008	jhu-module7-worker	active	running	45.63.17.131	ewr	vc2-1c-1gb	Ubuntu 24.04 LTS x64
-f7c4bde7-470e-466f-9ef3-3232dd6d80c2	jhu-module7-api	active	running	66.135.2.150	ewr	vc2-1c-1gb	Ubuntu 24.04 LTS x64
-faa3241b-3cb9-4cb9-8ed0-8751af8d92e8	jhu-module7-notifier	active	running	108.61.23.88	ewr	vc2-1c-1gb	Ubuntu 24.04 LTS x64
+WORKER_INSTANCE_ID	jhu-module7-worker	active	running	WORKER_PUBLIC_IP	ewr	vc2-1c-1gb	Ubuntu 24.04 LTS x64
+API_INSTANCE_ID	jhu-module7-api	active	running	API_PUBLIC_IP	ewr	vc2-1c-1gb	Ubuntu 24.04 LTS x64
+NOTIFIER_INSTANCE_ID	jhu-module7-notifier	active	running	NOTIFIER_PUBLIC_IP	ewr	vc2-1c-1gb	Ubuntu 24.04 LTS x64
 
 Databases:
-690a7ba4-d926-4619-9be0-bcf87be667b2	jhu-module7-postgres	pg	16	Running	EWR	vultr-dbaas-hobbyist-cc-1-25-1	45.63.17.131/32,66.135.2.150/32,98.117.198.160/32,108.61.23.88/32
-2b692d0b-30c2-4342-9ad5-a57149a97be4	jhu-module7-kafka	kafka	3.8	Running	EWR	vultr-dbaas-business-3x-occ-so-2-200-4	45.63.17.131/32,66.135.2.150/32,98.117.198.160/32,108.61.23.88/32
-2385d1a3-b8f2-4aa6-b91e-472f4f220a60	jhu-module7-valkey	valkey	8.1	Running	EWR	vultr-dbaas-hobbyist-rp-intel-1-11-1	45.63.17.131/32,66.135.2.150/32,98.117.198.160/32,108.61.23.88/32
+POSTGRES_DATABASE_ID	jhu-module7-postgres	pg	16	Running	EWR	vultr-dbaas-hobbyist-cc-1-25-1	WORKER_PUBLIC_IP/32,API_PUBLIC_IP/32,TRUSTED_CLIENT_IP/32,NOTIFIER_PUBLIC_IP/32
+KAFKA_DATABASE_ID	jhu-module7-kafka	kafka	3.8	Running	EWR	vultr-dbaas-business-3x-occ-so-2-200-4	WORKER_PUBLIC_IP/32,API_PUBLIC_IP/32,TRUSTED_CLIENT_IP/32,NOTIFIER_PUBLIC_IP/32
+VALKEY_DATABASE_ID	jhu-module7-valkey	valkey	8.1	Running	EWR	vultr-dbaas-hobbyist-rp-intel-1-11-1	WORKER_PUBLIC_IP/32,API_PUBLIC_IP/32,TRUSTED_CLIENT_IP/32,NOTIFIER_PUBLIC_IP/32
 
 Firewall Groups:
-c88ac457-c25a-4684-b66d-38d071bba0ba	jhu-module7 application firewall	2026-06-23 14:15:30	2026-06-23 14:15:31
+FIREWALL_GROUP_ID	jhu-module7 application firewall	2026-06-23 14:15:30	2026-06-23 14:15:31

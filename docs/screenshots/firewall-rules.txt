@@ -1,3 +1,3 @@
 Firewall rules for jhu-module7 application firewall:
-tcp	v4	98.117.198.160	32	8000	Inventory API
-tcp	v4	98.117.198.160	32	22	SSH from trusted IP
+tcp	v4	TRUSTED_CLIENT_IP	32	8000	Inventory API
+tcp	v4	TRUSTED_CLIENT_IP	32	22	SSH from trusted IP

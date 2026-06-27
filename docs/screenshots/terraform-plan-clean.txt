@@ -1,0 +1,16 @@
+vultr_firewall_group.app: Refreshing state... [id=FIREWALL_GROUP_ID]
+vultr_database.postgres: Refreshing state... [id=POSTGRES_DATABASE_ID]
+vultr_database.valkey: Refreshing state... [id=VALKEY_DATABASE_ID]
+vultr_database.kafka: Refreshing state... [id=KAFKA_DATABASE_ID]
+vultr_firewall_rule.ssh: Refreshing state... [id=2]
+vultr_firewall_rule.api: Refreshing state... [id=1]
+vultr_database_topic.reorder_alerts: Refreshing state... [id=reorder-alerts]
+vultr_database_topic.inventory_updates: Refreshing state... [id=inventory-updates]
+vultr_instance.service["api"]: Refreshing state... [id=API_INSTANCE_ID]
+vultr_instance.service["notifier"]: Refreshing state... [id=NOTIFIER_INSTANCE_ID]
+vultr_instance.service["worker"]: Refreshing state... [id=WORKER_INSTANCE_ID]
+
+No changes. Your infrastructure matches the configuration.
+
+Terraform has compared your real infrastructure against your configuration
+and found no differences, so no changes are needed.

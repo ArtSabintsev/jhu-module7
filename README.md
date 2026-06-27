@@ -1,10 +1,10 @@
-# JHU Module 7 Distributed Cloud Application
+# JHU Module 7 - Distributed Cloud Inventory Reorder
 
-This public repository contains a live Vultr deployment of a candy-store inventory reorder system for JHU Module 7.
+This public repository contains the source code, deployment configuration, and captured evidence for a Vultr deployment of a candy-store inventory reorder system for JHU Module 7.
 
-The system does one business job: it accepts an inventory update, decides whether the product needs reorder attention, records the result, and records a manager notification audit. The work is split across three long-running executables on three cloud VMs. State and coordination live in managed Vultr services.
+The system does one business job: it accepts an inventory update, decides whether the product needs reorder attention, records the result, and records a manager notification audit. The submitted deployment split the work across three long-running executables on three cloud VMs. State and coordination were provided by managed Vultr services.
 
-## Live Architecture
+## Deployment Architecture
 
 ```text
 Client
@@ -36,7 +36,7 @@ The demo SKU is `GUMMY-001`, Sour Gummy Worms.
 
 ## Required Components
 
-| Assignment requirement | Live implementation |
+| Assignment requirement | Submitted implementation |
 | --- | --- |
 | Three executables | `inventory-api`, `inventory-worker`, `alert-notifier` |
 | Messaging | Vultr Managed Kafka topics |
@@ -45,7 +45,7 @@ The demo SKU is `GUMMY-001`, Sour Gummy Worms.
 | Database | Vultr Managed PostgreSQL |
 | Cloud deployment | Three Vultr Cloud Compute VMs plus Vultr managed services |
 
-The assignment requires three of the four technology categories. This deployment uses all four.
+The assignment requires three of the four technology categories. This implementation uses all four.
 
 ## Executables
 
@@ -71,7 +71,7 @@ Key files:
 - `postgres-evidence.txt`
 - `valkey-evidence.txt`
 - `kafka-topics.txt`
-- `terraform-plan-live-clean.txt`
+- `terraform-plan-clean.txt`
 - `03-systemctl-api.txt`
 - `04-systemctl-worker.txt`
 - `05-systemctl-notifier.txt`
@@ -80,9 +80,11 @@ The evidence shows the full path: low-stock inventory update, Kafka event proces
 
 ## Runbook
 
-Live deployment details are in [docs/deployment_vultr.md](docs/deployment_vultr.md).
+Submitted deployment details are in [docs/deployment_vultr.md](docs/deployment_vultr.md).
 
 Terraform details are in [infra/vultr/terraform](infra/vultr/terraform).
+
+The primary submitted path is Vultr. An earlier AWS-compatible backend variant is also present and selected with `APP_BACKEND=aws`; the public evidence and runbook focus on the Vultr deployment.
 
 ## Local Checks
 
@@ -99,6 +101,6 @@ The submitted evidence includes `pytest-output.txt` with `11 passed`.
 
 Only example configuration files are tracked. Real `.env` files, Terraform variable files, Terraform state, local virtual environments, generated packages, logs, and cloud credentials are ignored.
 
-## Submission
+## Public Repository
 
-Submit the public repository link through the assignment portal.
+Canonical GitHub URL: https://github.com/ArtSabintsev/jhu-module7-distributed-cloud-inventory-reorder

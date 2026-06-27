@@ -1,6 +1,8 @@
 # Evidence Package
 
-This directory contains the evidence for the live Vultr deployment verified on 2026-06-23.
+This directory contains the evidence for the submitted Vultr deployment verified on 2026-06-23.
+
+Text evidence redacts public infrastructure IPs, the trusted client allowlist IP, provider resource IDs, and managed-service hostnames. The redactions keep the command shape, service names, timestamps, and workflow output intact while avoiding unnecessary exposure in the public repository.
 
 ## Portal Screenshots
 
@@ -30,7 +32,7 @@ pytest-output.txt                  Local test output
 ```text
 terraform-output.txt               Service IPs and managed-service endpoints
 terraform-state-list.txt           Terraform-managed resource list
-terraform-plan-live-clean.txt      Final no-change Terraform plan
+terraform-plan-clean.txt           Final no-change Terraform plan
 vultr-resource-list.txt            Sanitized Vultr resource list
 ```
 

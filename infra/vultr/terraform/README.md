@@ -1,10 +1,10 @@
 # Vultr Terraform Stack
 
-This Terraform stack defines the live Module 7 deployment on Vultr.
+This Terraform stack defines the submitted Module 7 deployment on Vultr.
 
 ## Managed Resources
 
-| Terraform resource | Live purpose |
+| Terraform resource | Purpose |
 | --- | --- |
 | `vultr_instance.service["api"]` | Runs `inventory-api` |
 | `vultr_instance.service["worker"]` | Runs `inventory-worker` |
@@ -22,13 +22,13 @@ This Terraform stack defines the live Module 7 deployment on Vultr.
 
 | Output | Value |
 | --- | --- |
-| `api_public_ip` | `66.135.2.150` |
-| `service_public_ips.api` | `66.135.2.150` |
-| `service_public_ips.worker` | `45.63.17.131` |
-| `service_public_ips.notifier` | `108.61.23.88` |
+| `api_public_ip` | `API_PUBLIC_IP` |
+| `service_public_ips.api` | `API_PUBLIC_IP` |
+| `service_public_ips.worker` | `WORKER_PUBLIC_IP` |
+| `service_public_ips.notifier` | `NOTIFIER_PUBLIC_IP` |
 | `kafka_topics` | `inventory-updates`, `reorder-alerts` |
 
-The live output is captured in `docs/screenshots/terraform-output.txt`.
+The submitted output is captured in `docs/screenshots/terraform-output.txt` with public infrastructure values redacted.
 
 ## Validation
 
@@ -48,7 +48,7 @@ No changes. Your infrastructure matches the configuration.
 
 ## Teardown
 
-Destroy the live Vultr resources after submission review:
+Destroy the Vultr resources after submission review:
 
 ```bash
 cd infra/vultr/terraform

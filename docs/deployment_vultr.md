@@ -1,4 +1,4 @@
-# Live Vultr Deployment
+# Vultr Deployment
 
 This is the deployment submitted for Module 7.
 
@@ -14,12 +14,14 @@ This is the deployment submitted for Module 7.
 | Cache | `jhu-module7-valkey` | Stores API read-through cache entries |
 | Database | `jhu-module7-postgres` | Stores inventory, reorder alerts, and notification audit rows |
 
-## Live Endpoints
+## Submitted Endpoint Pattern
 
 | Service | Endpoint |
 | --- | --- |
-| API | `http://66.135.2.150:8000` |
-| Health check | `http://66.135.2.150:8000/health` |
+| API | `http://API_PUBLIC_IP:8000` |
+| Health check | `http://API_PUBLIC_IP:8000/health` |
+
+The submitted evidence redacts public infrastructure addresses and managed-service hostnames. The original grader-facing run used the same endpoints shown in the captured command output shape.
 
 ## Kafka Topics
 
@@ -53,11 +55,11 @@ This is the deployment submitted for Module 7.
 | PostgreSQL stores the records | `postgres-evidence.txt` |
 | Valkey cache works | `valkey-evidence.txt`, `demo-output.txt` |
 | Three services are active | `03-systemctl-api.txt`, `04-systemctl-worker.txt`, `05-systemctl-notifier.txt` |
-| Terraform matches the live stack | `terraform-plan-live-clean.txt`, `terraform-state-list.txt` |
+| Terraform matches the submitted stack | `terraform-plan-clean.txt`, `terraform-state-list.txt` |
 
 ## Teardown
 
-The live resources are billable. After grading evidence is captured, destroy the stack from the Terraform directory:
+The cloud resources are billable. After grading evidence is captured, destroy the stack from the Terraform directory:
 
 ```bash
 cd infra/vultr/terraform

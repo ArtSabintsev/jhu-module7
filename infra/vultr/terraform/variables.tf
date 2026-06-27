@@ -78,7 +78,7 @@ variable "kafka_topic_retention_hours" {
 variable "app_repo_url" {
   description = "Git URL to clone on each VM. HTTPS works for public repos; SSH requires github_deploy_key_private."
   type        = string
-  default     = "https://github.com/ArtSabintsev/jhu-module7.git"
+  default     = "https://github.com/ArtSabintsev/jhu-module7-distributed-cloud-inventory-reorder.git"
 }
 
 variable "app_git_ref" {
