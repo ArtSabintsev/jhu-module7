@@ -380,18 +380,18 @@ resource "aws_instance" "service" {
   iam_instance_profile        = aws_iam_instance_profile.app.name
 
   user_data = templatefile("${path.module}/user_data.sh.tftpl", {
-    app_git_ref          = var.app_git_ref
-    app_repo_url         = var.app_repo_url
-    aws_region           = var.aws_region
-    executable           = each.value.executable
-    inventory_topic_arn  = aws_sns_topic.inventory_updates.arn
-    alert_topic_arn      = aws_sns_topic.reorder_alerts.arn
-    inventory_queue_url  = aws_sqs_queue.inventory_worker.id
-    alert_queue_url      = aws_sqs_queue.alert_notifier.id
-    inventory_table      = aws_dynamodb_table.inventory.name
-    alert_table          = aws_dynamodb_table.alerts.name
-    notification_table   = aws_dynamodb_table.notifications.name
-    redis_endpoint       = aws_elasticache_cluster.redis.cache_nodes[0].address
+    app_git_ref         = var.app_git_ref
+    app_repo_url        = var.app_repo_url
+    aws_region          = var.aws_region
+    executable          = each.value.executable
+    inventory_topic_arn = aws_sns_topic.inventory_updates.arn
+    alert_topic_arn     = aws_sns_topic.reorder_alerts.arn
+    inventory_queue_url = aws_sqs_queue.inventory_worker.id
+    alert_queue_url     = aws_sqs_queue.alert_notifier.id
+    inventory_table     = aws_dynamodb_table.inventory.name
+    alert_table         = aws_dynamodb_table.alerts.name
+    notification_table  = aws_dynamodb_table.notifications.name
+    redis_endpoint      = aws_elasticache_cluster.redis.cache_nodes[0].address
   })
 
   tags = merge(local.common_tags, { Name = "${var.project_name}-${each.key}" })

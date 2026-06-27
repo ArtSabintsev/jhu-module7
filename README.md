@@ -1,6 +1,6 @@
 # JHU Module 7 Distributed Cloud Application
 
-This repository contains a live Vultr deployment of a candy-store inventory reorder system.
+This public repository contains a live Vultr deployment of a candy-store inventory reorder system for JHU Module 7.
 
 The system does one business job: it accepts an inventory update, decides whether the product needs reorder attention, records the result, and records a manager notification audit. The work is split across three long-running executables on three cloud VMs. State and coordination live in managed Vultr services.
 
@@ -94,6 +94,10 @@ pytest
 ```
 
 The submitted evidence includes `pytest-output.txt` with `11 passed`.
+
+## Credential Safety
+
+Only example configuration files are tracked. Real `.env` files, Terraform variable files, Terraform state, local virtual environments, generated packages, logs, and cloud credentials are ignored.
 
 ## Submission
 

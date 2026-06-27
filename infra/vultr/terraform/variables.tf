@@ -76,9 +76,9 @@ variable "kafka_topic_retention_hours" {
 }
 
 variable "app_repo_url" {
-  description = "Git URL to clone on each VM. For a private repo, configure SSH access first."
+  description = "Git URL to clone on each VM. HTTPS works for public repos; SSH requires github_deploy_key_private."
   type        = string
-  default     = "git@github.com:ArtSabintsev/jhu-module7.git"
+  default     = "https://github.com/ArtSabintsev/jhu-module7.git"
 }
 
 variable "app_git_ref" {
@@ -88,7 +88,7 @@ variable "app_git_ref" {
 }
 
 variable "github_deploy_key_private" {
-  description = "Optional private deploy key that can read the private GitHub repo. This is written to cloud-init and Terraform state; use only for class/demo infrastructure."
+  description = "Optional private deploy key for SSH-only clone workflows. This is written to cloud-init and Terraform state; use only for class/demo infrastructure."
   type        = string
   default     = ""
   sensitive   = true

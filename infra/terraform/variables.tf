@@ -39,7 +39,7 @@ variable "key_name" {
 }
 
 variable "app_repo_url" {
-  description = "Optional git URL to clone on each EC2 instance. For a private repo, use an SSH deploy key."
+  description = "Optional git URL to clone on each EC2 instance. Use HTTPS for public repos or SSH with an appropriate deploy key."
   type        = string
   default     = ""
 }
